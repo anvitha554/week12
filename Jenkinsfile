@@ -27,4 +27,3 @@ stage('Push Docker Image to Docker Hub') {
         bat 'docker push peddianvitha/seleniumdemoapp1:v1'
     }
 }
-```
