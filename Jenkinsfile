@@ -7,13 +7,13 @@ pipeline {
             steps {
                 echo 'Running Selenium Tests using pytest'
 
-                bat 'C:\\Users\\DELL\\AppData\\Local\\Programs\\Python\\Python313\\python.exe -m pip install -r requirements.txt'
+                bat '"C:\\Users\\peddi\\AppData\\Local\\Python\\bin\\python.exe" -m pip install -r requirements.txt'
 
-                bat 'start /B "" "C:\\Users\\DELL\\AppData\\Local\\Programs\\Python\\Python313\\python.exe" app.py'
+                bat 'start /B "" "C:\\Users\\peddi\\AppData\\Local\\Python\\bin\\python.exe" app.py'
 
                 bat 'ping 127.0.0.1 -n 6 > nul'
 
-                bat 'C:\\Users\\DELL\\AppData\\Local\\Programs\\Python\\Python313\\python.exe -m pytest -v'
+                bat '"C:\\Users\\peddi\\AppData\\Local\\Python\\bin\\python.exe" -m pytest -v'
             }
         }
 
@@ -26,11 +26,13 @@ pipeline {
 
         stage('Docker Login') {
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-creds',
-                    usernameVariable: 'DOCKERHUB_USER',
-                    passwordVariable: 'DOCKERHUB_TOKEN'
-                )]) {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-creds',
+                        usernameVariable: 'DOCKERHUB_USER',
+                        passwordVariable: 'DOCKERHUB_TOKEN'
+                    )
+                ]) {
                     bat 'echo %DOCKERHUB_TOKEN% | docker login -u %DOCKERHUB_USER% --password-stdin'
                 }
             }
@@ -39,14 +41,19 @@ pipeline {
         stage('Push Docker Image to Docker Hub') {
             steps {
                 bat 'docker tag seleniumdemoapp1:v1 peddianvitha/seleniumdemoapp1:v1'
+
                 bat 'docker push peddianvitha/seleniumdemoapp1:v1'
             }
         }
 
         stage('Deploy to Kubernetes') {
             steps {
+                echo 'Deploying application to Kubernetes'
+
                 bat 'kubectl apply -f deployment.yaml --validate=false'
+
                 bat 'kubectl apply -f service.yaml'
+
                 bat 'kubectl rollout status deployment/seleniumtestdemoapp1-deployment --timeout=120s'
             }
         }
