@@ -46,17 +46,13 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
-            steps {
-                echo 'Deploying application to Kubernetes'
-
-                bat 'kubectl apply -f deployment.yaml --validate=false'
-
-                bat 'kubectl apply -f service.yaml'
-
-                bat 'kubectl rollout status deployment/seleniumtestdemoapp1-deployment --timeout=120s'
-            }
-        }
+       stage('Deploy to Kubernetes') {
+    steps {
+        echo 'Deploying application to Kubernetes'
+        bat 'set "KUBECONFIG=C:\\Users\\peddi\\.kube\\config" && kubectl apply -f deployment.yaml'
+        bat 'set "KUBECONFIG=C:\\Users\\peddi\\.kube\\config" && kubectl get deployments'
+    }
+}
     }
 
     post {
